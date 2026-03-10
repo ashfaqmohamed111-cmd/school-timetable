@@ -22,12 +22,16 @@ function Sidebar() {
     { name: 'Attendance', path: '/attendance', icon: '✅' },
     { name: 'Substitutions', path: '/substitutions', icon: '⏰' },
     { name: 'Reports', path: '/reports', icon: '📊' },
+    { name: 'Users', path: '/users', icon: '👥', roles: ['superadmin'] },
   ];
 
   // Filter menu items based on user role
   const filteredMenu = menuItems.filter(item => {
     if (user?.role === 'teacher') {
       return ['Dashboard', 'Timetable', 'Attendance', 'Substitutions'].includes(item.name);
+    }
+    if (item.roles && !item.roles.includes(user?.role)) {
+      return false;
     }
     return true;
   });

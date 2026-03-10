@@ -10,11 +10,15 @@ import Timetable from './pages/Timetable';
 import Subjects from './pages/Subjects';
 import Teachers from './pages/Teachers';
 import Substitutions from './pages/Substitutions';
+import { UserProvider } from './context/UserContext';
+import UserManagement from './pages/UserManagement';
 
 // Protected Route wrapper
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
+  if (!user) return <Navigate to="/login" />;
+  if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to="/dashboard" />;
+  return children;
 };
 
 // Public Route wrapper
@@ -27,9 +31,10 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <SubstitutionProvider>
-          <Routes>
-          <Route path="/login" element={
+        <UserProvider>
+          <SubstitutionProvider>
+            <Routes>
+            <Route path="/login" element={
             <PublicRoute>
               <Login />
             </PublicRoute>
@@ -76,9 +81,17 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
+          <Route path="/users" element={
+            <ProtectedRoute allowedRoles={['superadmin']}>
+              <Layout>
+                <UserManagement />
+              </Layout>
+            </ProtectedRoute>
+          } />
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
         </SubstitutionProvider>
+        </UserProvider>
       </AuthProvider>
     </Router>
   );
